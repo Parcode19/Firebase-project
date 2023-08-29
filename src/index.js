@@ -8,7 +8,8 @@ import {
 } from "firebase/firestore";
 import {
   getAuth, createUserWithEmailAndPassword, 
-  signOut, signInWithEmailAndPassword
+  signOut, signInWithEmailAndPassword,
+  onAuthStateChanged
 } from "firebase/auth"
 
 // For Firebase JS SDK v7.20.0 and later, measurementId is optional
@@ -37,7 +38,7 @@ const colRef = collection(db, 'books');
 const q = query(colRef, orderBy("createdAt"))
 
 // real time collection data
-onSnapshot(q, (snapshot) => {
+const unsubCol = onSnapshot(q, (snapshot) => {
   let books =[];
   snapshot.docs.forEach((doc) => {
     books.push({ ...doc.data(), id: doc.id })
@@ -82,7 +83,7 @@ getDoc(docRef)
   })
 
 // realtime listener to that single document
-onSnapshot(docRef, (doc) => {
+const unsubDoc = onSnapshot(docRef, (doc) => {
   console.log(doc.data(), doc.id)
 })
 
@@ -113,7 +114,7 @@ signupForm.addEventListener('submit', (e) => {
 
   createUserWithEmailAndPassword(auth, email, password)
   .then((cred) => {
-    console.log('user created: ',cred.user)
+    // console.log('user created: ',cred.user)
     signupForm.reset()
   })
   .catch((err) => {
@@ -126,7 +127,7 @@ const logoutButton = document.querySelector('.logout')
 logoutButton.addEventListener('click', () => {
   signOut(auth)
     .then(() => {
-      console.log("User logged out")
+      // console.log("User logged out")
     })
     .catch((err) => {
       console.log(err.message)
@@ -141,7 +142,7 @@ loginForm.addEventListener('submit', (e) => {
   const password = loginForm.password.value
   signInWithEmailAndPassword(auth, email, password)
     .then((cred) => {
-      console.log('user logged  in: ',cred.user)
+      // console.log('user logged  in: ',cred.user)
       signupForm.reset()
     })
     .catch((err) => {
@@ -149,3 +150,16 @@ loginForm.addEventListener('submit', (e) => {
     })
 })
 
+// subscribing to auth changes
+const unsubAuth = onAuthStateChanged(auth, (user) => {
+  console.log('user status changed: ', user)
+})
+
+// unsubscribing from changes (auth & db)
+const unsubButton = document.querySelector('.unsub')
+unsubButton.addEventListener('click', () => {
+  console.log('unsubscribing')
+  unsubCol()
+  unsubDoc()
+  unsubAuth()
+})
