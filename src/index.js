@@ -1,5 +1,8 @@
 import { initializeApp } from "firebase/app";
-import { getFirestore, collection, getDocs } from "firebase/firestore";
+import { 
+  getFirestore, collection, getDocs,
+  addDoc, deleteDoc, doc
+ } from "firebase/firestore";
 
 // For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
@@ -14,13 +17,13 @@ const firebaseConfig = {
 
 
 // init firebase
-initializeApp(firebaseConfig)
+initializeApp(firebaseConfig);
 
 // init services
-const db = getFirestore()
+const db = getFirestore();
 
 // collection ref
-const colRef = collection(db, 'books')
+const colRef = collection(db, 'books');
 
 // get collection data
 getDocs(colRef)
@@ -35,3 +38,30 @@ getDocs(colRef)
   .catch (err => {
     console.log(err.message)
   })
+
+// adding docs
+const addBookForm = document.querySelector('.add');
+addBookForm.addEventListener('submit', (e) => {
+  e.preventDefault()
+
+  addDoc(colRef, {
+    title: addBookForm.title.value,
+    author: addBookForm.author.value
+  })
+  .then(() => {
+    addBookForm.reset()
+  })
+})
+
+// deleting docs
+const deleteBookForm = document.querySelector('.delete');
+deleteBookForm.addEventListener('submit', (e) => {
+  e.preventDefault()
+
+  const docRef = doc(db, 'books', deleteBookForm.id.value)
+
+  deleteDoc(docRef)
+  .then(() => {
+    deleteBookForm.reset()
+  })
+})
