@@ -4,7 +4,7 @@ import {
   addDoc, deleteDoc, doc, onSnapshot,
   query, where,
   orderBy, serverTimestamp,
-  getDoc
+  getDoc, updateDoc
  } from "firebase/firestore";
 
 // For Firebase JS SDK v7.20.0 and later, measurementId is optional
@@ -71,12 +71,28 @@ deleteBookForm.addEventListener('submit', (e) => {
 // get a single document
 const docRef = doc(db, 'books', 'A6mCepVv5cd3Fb7xmJml')
 
-// getDoc(docRef)
-//   .then((doc) => {
-//     console.log(doc.data(), doc.id)
-//   })
+getDoc(docRef)
+  .then((doc) => {
+    // console.log(doc.data(), doc.id)
+  })
 
 // realtime listener to that single document
 onSnapshot(docRef, (doc) => {
   console.log(doc.data(), doc.id)
+})
+
+
+// update a document
+const updateForm = document.querySelector('.update');
+updateForm.addEventListener('submit', (e) => {
+  e.preventDefault()
+
+  let docRef = doc(db, 'books', updateForm.id.value)
+
+  updateDoc(docRef, {
+    title: "updated title"
+  })
+  .then(() => {
+    updateForm.reset()
+  })
 })
